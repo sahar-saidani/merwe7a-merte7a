@@ -12,11 +12,7 @@ const OffreSchema = new mongoose.Schema({
         maxlength :[20,'name can not be more than 20 characters'],
 
     },
-    image:{
-        type :String,
-        required:[true,'must provide image'],
-        match: [/\.(png)$/i, 'Le fichier doit être une image PNG (extension .png)'],
-    },
+    
     gouvernorat_arrivée :{
         type :String,
         required: [true, 'Le gouvernorat d\'arrivée est requis'],
@@ -30,7 +26,19 @@ const OffreSchema = new mongoose.Schema({
         type: String,
         required: [true, 'La ville d\'arrivée est requise']
     },
-    
+    gouvernorat_depart :{
+        type :String,
+        required: [true, 'Le gouvernorat de depart est requis'],
+        enum:['Ariana', 'Béja', 'Ben Arous', 'Bizerte', 'El Kef', 'Gabes', 'Gafsa',
+      'Jendouba', 'Kairouan', 'Kasserine', 'Kebili', 'Mahdia', 'Manouba',
+      'Medenine', 'Monastir', 'Nabeul', 'Sfax', 'Sidi Bouzid', 'Siliana',
+      'Sousse', 'Tataouine', 'Tozeur', 'Tunis', 'Zaghouan']
+
+    },
+    lieu_depart:{
+        type: String,
+        required: [true, 'La ville de depart est requise']
+    },
     dateDepart: {
         type: Date,
         required: [true, 'La date de départ est requise']
@@ -44,6 +52,23 @@ const OffreSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Le numéro de téléphone est requis'],
         match: [/^\d{8}$/, 'Le numéro de téléphone doit contenir 8 chiffres']
-    }
+    },
+    bagage:{
+        type: String,
+        required:true,
+        enum:['lourd' , 'leger']
+    },
+    nombreplacerestant:{
+        type: Number,
+        required:[true],
+        enum:[1,2,3,4],
+
+    },
+    createdBy: {
+        type: mongoose.Types.ObjectId,
+        ref: 'covoitureur',
+        required: [true, 'Please provide covoitureur'],
+    },
+
 })
-module.exports = mongoose.model('Offre',OffreSchema);
+module.exports = mongoose.model('Offre',OffreSchema); 

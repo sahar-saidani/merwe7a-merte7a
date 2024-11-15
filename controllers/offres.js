@@ -1,46 +1,100 @@
 const Offre = require("../models/offre")
 const villesParGouvernorat = require("../models/lieu")
-const getAllOffres =async(req,res)=>{
-    try{
-        const offre = await Offre.find({})
-        res.status(200).json({offre}) 
-    }catch(error){
-        res.status(500).json({msg:error})
+const { StatusCodes } = require('http-status-codes')
+const { BadRequestError, NotFoundError } = require('../errors')
+const removeExpiredOffres = async () => {
+    const today = new Date()//date d'aujourdhui
+    try {
+      await Offre.deleteMany({ dateDepart: { $lt: today } }) //$lt segnifie less than en MongoDB
+      console.log("Offres expirées supprimées avec succès")
+    } catch (error) {
+      console.error("Erreur lors de la suppression des offres expirées", error)
     }
+  }
+
+const getAllOffresco =async(req,res)=>{
+        await removeExpiredOffres()
+        const offre = await Offre.find({createdBy: req.user.userId })
+        res.status(StatusCodes.OK).json({ offre, count: offre.length })
+    
+}
+const getAllOffres =async(req,res)=>{
+  await removeExpiredOffres()
+  const offre = await Offre.find({})
+  res.status(StatusCodes.OK).json({ offre})
+
+}
+const getOffreco = async (req, res) => {
+    const {
+      user: { userId },
+      params: { id: OffreId },
+    } = req
+  
+    const offre = await Offre.findOne({
+      _id: OffreId,
+      createdBy: userId,
+    })
+    if (!offre) {
+      throw new NotFoundError(`No offre with id ${OffreId}`)
+    }
+    res.status(StatusCodes.OK).json({ offre })
+  }
+const getOffre = async (req, res) => {
+    const OffreId = req.params
+    const offre = await Offre.findOne({_id: OffreId})
+    
+    if (!offre) {
+      throw new NotFoundError(`No offre with id ${OffreId}`)
+    }
+    res.status(StatusCodes.OK).json({ offre })
+  }
+const ajusterGouvernoratEtLieu = (offre) => {
+    if (offre.lieu_arrivée !== 'FST') {
+      offre.gouvernorat_depart = 'Tunis';
+      offre.lieu_depart = 'FST';
+    }
+  
+    if (offre.lieu_depart !== 'FST') {
+      offre.gouvernorat_arrivée = 'Tunis';
+      offre.lieu_arrivée = 'FST';
+    }
+  
+    return offre;
 }
 const createOffre = async(req,res)=>{
-    try{
-        const offre =await Offre.create(req.body)
-        res.status(201).json({offre}) 
+        req.body.createdBy = req.user.userId
+        const data = ajusterGouvernoratEtLieu(req.body) //ta3mil verif 3al req.body eli bich yraja3lik l'offre modifiée 
+        const offre =await Offre.create(data)
+        res.status(StatusCodes.CREATED).json({ offre }) 
 
-    }catch(error){
-        res.status(500).json({msg:error})
-    }
+    
+    
 }
 const updateOffre = async(req,res)=>{
-    try{
-        const {id:OffreID} = req.params
-        const offre= await Offre.findOneAndUpdate({_id:OffreID},req.body,{
+    const {
+        user: { userId },
+        params: { id: OffreID },
+      } = req
+    const dataoffre = ajusterGouvernoratEtLieu(req.body)
+    const offre= await Offre.findByIdAndUpdate({_id:OffreID,createdBy:userId},dataoffre,{
             new: true,
             runValidators :true
         })
-        res.status(200).json({})
-
-    }catch(error){
-        res.status(500).json({msg:error})
+    if (!job) {
+        throw new NotFoundError(`No job with id ${jobId}`)
     }
-}
+        res.status(StatusCodes.OK).json({ job })
+    }
+    
 const deleteOffre =async(req,res)=>{
-    try{
-        const {id:OffreID} = req.params
-        const offre=await Offre.findOneAndDelete({_id:OffreID})
+        const {
+            params:{id:OffreID},
+            user:{ userId} }= req
+        const offre=await Offre.findByIdAndRemove({_id:OffreID,createdBy :userId })
         if (!offre){
-            res.status(404).json(`no offre with this ${OffreID}`)
+            throw new NotFoundError(`No job with id ${jobId}`)
         }
-        res.status(200).json(offre)
-    }catch(error){
-        res.status(500).json({msg:error})
-    }
+        res.status(StatusCodes.OK).send()
     
 }
 const getAllgouvernerat = async(req, res)=> {
@@ -58,15 +112,17 @@ const getVilles = async (req, res) =>{
     if (!villes) {
       return res.status(404).json({ message: `Le gouvernorat '${gouvernorat}' est introuvable` });
     }
-  
     res.status(200).json(villes);
 }
 module.exports ={
     getAllOffres,
+    getOffreco,
     deleteOffre,
     updateOffre,
     createOffre,
     getVilles ,
     getAllgouvernerat,
+    getAllOffresco,
+    getOffre,
     
 }
