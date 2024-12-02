@@ -1,17 +1,5 @@
 const mongoose = require ("mongoose")
-const villesParGouvernorat = {
-    'Ariana': ['Ariana Ville', 'Soukra', 'Raoued', 'Kalaat El Andalous'],
-    'Béja': ['Béja Nord', 'Béja Sud', 'Nefza', 'Téboursouk','Testour','Goubellat','Medjez El Bab'],
-    'Ben Arous': ['Ben Arous', 'Radès', 'Hammam Lif', 'Mourouj','Hammam Chott','Ezzahra','Mégrine','Mornag','Fouchana'],
-    'Tunis': ['La Marsa', 'Carthage', 'Le Kram', 'Bab Souika'],
-}
 const OffreSchema = new mongoose.Schema({
-    name:{
-        type:String,
-        required :[true,'must provide name'],
-        maxlength :[20,'name can not be more than 20 characters'],
-
-    },
     
     gouvernorat_arrivée :{
         type :String,
@@ -41,12 +29,37 @@ const OffreSchema = new mongoose.Schema({
     },
     dateDepart: {
         type: Date,
-        required: [true, 'La date de départ est requise']
+        required: [true, 'La date de départ est requise'],
+        validate: {
+            validator: function (value) {
+                // Vérifie si la date est aujourd'hui ou plus tard
+                const now = new Date();
+                now.setHours(0, 0, 0, 0); // Réinitialise l'heure à 00:00:00
+                return value >= now;
+            },
+            message: 'La date de départ doit être aujourd\'hui ou dans le futur',
+        },
     },
     heureDepart: {
         type: String,
         required: [true, 'L\'heure de départ est requise'],
         match: [/^\d{2}:\d{2}$/, 'Le format de l\'heure doit être HH:mm'],
+        validate: {
+            validator: function (value) {
+                // Vérifier l'heure seulement si la date est aujourd'hui
+                const now = new Date();
+                const [hours, minutes] = value.split(':').map(Number);
+                const enteredTime = new Date();
+                enteredTime.setHours(hours, minutes, 0, 0);
+
+                // Si la date de départ est aujourd'hui, comparer l'heure
+                if (this.dateDepart && this.dateDepart.toDateString() === now.toDateString()) {
+                    return enteredTime > now;
+                }
+                return true; // Si la date n'est pas aujourd'hui, pas besoin de validation
+            },
+            message: 'L\'heure de départ doit être supérieure à l\'heure actuelle pour la date d\'aujourd\'hui',
+        },
     },
     phoneNumber: {
         type: String,
@@ -56,7 +69,7 @@ const OffreSchema = new mongoose.Schema({
     bagage:{
         type: String,
         required:true,
-        enum:['lourd' , 'leger']
+        enum:['avec bagage' , 'sans bagage']
     },
     nombreplacerestant:{
         type: Number,
@@ -64,10 +77,23 @@ const OffreSchema = new mongoose.Schema({
         enum:[1,2,3,4],
 
     },
+    genre:{
+        type:String,
+        required:[true],
+        enum:['femme','homme','homme et femme'],
+    },
+    prixparplace:{//j'ai besion d'enregistrer prix dans la base de donnees
+        type:Number,
+        required:[true],
+    },
     createdBy: {
         type: mongoose.Types.ObjectId,
         ref: 'covoitureur',
         required: [true, 'Please provide covoitureur'],
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
     },
 
 })

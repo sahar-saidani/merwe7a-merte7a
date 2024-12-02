@@ -10,7 +10,7 @@ const checkPasswordUsage = async (email, password) => {
       return {
         isPasswordUsed: true,
         message: "Le mot de passe est déjà utilisé par un autre utilisateur (Passenger). Veuillez choisir un autre mot de passe.",
-      };
+      }
     }
   }
 

@@ -20,9 +20,13 @@ const reservationshema =new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'confirmed'],
+        enum: ['pending', 'confirmed','rejected','annulée'],
         default: 'pending',
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
     },
 
 })
-module.exports=mongoose.model('Reservation',reservationshema)
+module.exports=mongoose.model('Reservation',reservationshema) 

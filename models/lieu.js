@@ -21,7 +21,7 @@ const villesParGouvernorat = {
     'Sousse': ['Sousse Ville', 'Akouda', 'Hammam Sousse', 'Msaken', 'Kantaoui', 'Enfidha', 'Hergla'],
     'Tataouine': ['Tataouine Ville', 'Remada', 'Ghomrassen', 'Dhehiba', 'Bir Lahmar'],
     'Tozeur': ['Tozeur Ville', 'Nefta', 'Degache', 'Tameghza', 'Hazoua'],
-    'Tunis': ['Tunis Centre', 'La Marsa', 'Carthage', 'Le Kram', 'Bab Souika', 'Bab El Bhar', 'Sidi Hassine'],
+    'Tunis': ['Tunis Centre', 'La Marsa', 'Carthage', 'Le Kram', 'Bab Souika', 'Bab El Bhar', 'Sidi Hassine','FST'],
     'Zaghouan': ['Zaghouan Ville', 'Zriba', 'Bir Mcherga', 'El Fahs', 'Nadhour', 'Saouaf']
   };
   

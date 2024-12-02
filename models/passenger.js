@@ -13,13 +13,29 @@ const passegershema = new mongoose.Schema({
         match: [
           /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
           'Please provide a valid email'],
+        unique:true,
     },
     password: {
-        type: String,
-        required: [true, 'Please provide password'],
-        minlength: 6,
-        unique:true,
-    }
+      type: String,
+      required: [true, 'Please provide password'],
+      minlength: [8, 'Password must be at least 8 characters long'],
+      unique: true,
+      validate: {
+          validator: function(value) {
+              // Expression régulière pour valider le mot de passe
+              return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value)
+          },
+          message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+    },
+    },
+    points: {
+       type: Number,
+        default: 0,
+    }, // Points accumulés
+    reservationsCount: {
+      type: Number, 
+      default: 0 ,
+    },
 })
 passegershema.pre('save', async function () {
         const salt = await bcrypt.genSalt(10)

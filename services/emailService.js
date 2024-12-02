@@ -1,25 +1,36 @@
-const nodemailer =require('nodemailer')
+require('dotenv').config();
+const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({//mail mnin bich bich yitb3ath
+// Configuration du transporteur
+const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'saharsaidani8@gmail.com',
-    pass: 'Sahar123!',
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
-})
+});
 
-const sendEmail = async (to, subject, text) => {
+// Fonction pour envoyer un email
+const sendEmail = async (to, subject, text, html = null) => {
   try {
-    await transporter.sendMail({
-      from: 'saharsaidani8@gmail.com',
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
       to,
       subject,
       text,
-    })
+    }
+
+    // Ajouter un contenu HTML si disponible
+    if (html) {
+      mailOptions.html = html
+    }
+
+    // Envoyer l'email
+    await transporter.sendMail(mailOptions)
     console.log(`Email envoyé à ${to}`)
   } catch (error) {
     console.error('Erreur lors de l\'envoi de l\'email :', error)
   }
-};
+}
 
 module.exports = sendEmail
