@@ -29,14 +29,24 @@ const getAllOffresco = async (req, res) => {
           heureDepart: { $gte: currentTimeInMinutes }, // Comparer l'heure et les minutes actuelles
         },
       ],
-    }).where('dateDepart').gt(now);
+    });
+
+    // Filtrer les offres pour ne pas inclure celles dont la date et l'heure sont déjà passées
+    const filteredOffres = offres.filter(offre => {
+      const offreDate = new Date(offre.dateDepart);
+      const offreTime = parseInt(offre.heureDepart.split(':')[0]) * 60 + parseInt(offre.heureDepart.split(':')[1]);
+
+      // Si la date est dans le passé ou si la date est aujourd'hui mais l'heure est déjà passée
+      return offreDate > now || (offreDate.getTime() === now.getTime() && offreTime >= currentTimeInMinutes);
+    });
 
     // Retourner les résultats
-    res.status(StatusCodes.OK).json({ offres, count: offres.length });
+    res.status(StatusCodes.OK).json({ offres: filteredOffres, count: filteredOffres.length });
   } catch (error) {
     throw new InternalServerError('Erreur lors de la récupération des offres');
   }
-}
+};
+
 
 
 
@@ -67,14 +77,24 @@ const getAllOffres = async (req, res) => {
           heureDepart: { $gte: currentTimeInMinutes }, // Comparer l'heure et les minutes actuelles
         },
       ],
-    }).where('dateDepart').gt(now);
+    });
+
+    // Filtrer les offres pour ne pas inclure celles dont la date et l'heure sont déjà passées
+    const filteredOffres = offres.filter(offre => {
+      const offreDate = new Date(offre.dateDepart);
+      const offreTime = parseInt(offre.heureDepart.split(':')[0]) * 60 + parseInt(offre.heureDepart.split(':')[1]);
+
+      // Si la date est dans le passé ou si la date est aujourd'hui mais l'heure est déjà passée
+      return offreDate > now || (offreDate.getTime() === now.getTime() && offreTime >= currentTimeInMinutes);
+    });
 
     // Retourner les résultats
-    res.status(StatusCodes.OK).json({ offres, count: offres.length });
+    res.status(StatusCodes.OK).json({ offres: filteredOffres, count: filteredOffres.length });
   } catch (error) {
     throw new InternalServerError('Erreur lors de la récupération des offres');
   }
 };
+
 
 
 
